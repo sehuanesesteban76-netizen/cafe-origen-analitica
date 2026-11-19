@@ -33,6 +33,7 @@ function ventaMayor(ventas) {
 
 function ticketPromedio(ventas) {
     const total = totalVendido(ventas)
+
     let ventasValida = 0
     for (let venta of ventas) {
         if (venta.cantidad > 0) {
@@ -43,53 +44,31 @@ function ticketPromedio(ventas) {
     return division
 }
 
+function normalizarCiudad(texto) {
+    let ciudad = String(texto)
+        .trim()
+        .toLocaleLowerCase()
 
-// Funciones ultilizadas por el TL Jorge, preguntarle sobre estas funciones y la explicacion de lo que hace y la estarandización que hace cada funcion
-function limpiarTexto(texto) {
-    if (typeof texto !== 'string') return '';
-    return texto.normalize('NFC').trim().replace(/\s+/g, ' ');
+    return ciudad
 }
 
-function claveTexto(texto) {
-    return limpiarTexto(texto)
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '');
-}
-
-function tieneTildes(texto) {
-    return /[\u0300-\u036f]/.test(limpiarTexto(texto).normalize('NFD'));
-}
-
-function formatearNombreLugar(texto) {
-    const conectores = ['de', 'del', 'la', 'las', 'los', 'y', 'e'];
-    const limpio = limpiarTexto(texto).toLowerCase();
-    if (limpio === '') return '';
-
-    const palabras = [];
-    let posicion = 0;
-    for (const palabra of limpio.split(' ')) {
-        const esConector = posicion > 0 && conectores.includes(palabra);
-        palabras.push(esConector ? palabra : palabra.charAt(0).toUpperCase() + palabra.slice(1));
-        posicion++;
-    }
-    return palabras.join(' ');
-}
-
-
-
-function ventasPorCiudad(ventas, ciudad){
-    const resumen = {}
-    for (let venta of ventas){
-        const ciudad = formatearNombreLugar(venta.ciudad)
-        if(!resumen[ciudad]){
-            resumen[ciudad = {
-                totalVentas: 0,
-                totalUnidaes: 0
-            }]
+function ventasPorCiudad(ventas, ciudad) {
+    let totalVendido = 0
+    const ciudadEstarandizada = normalizarCiudad(ciudad)
+    for (let venta of ventas) {
+        if (normalizarCiudad(venta.ciudad) === ciudadEstarandizada) {
+            totalVendido += venta.cantidad * venta.precio
         }
-        resumen[ciudad].totalVentas += valorVenta(venta)
-        resumen[ciudad.totalUnidaes] += venta.cantidad
     }
-    return resumen
+    return totalVendido
 }
+
+module.exports = {
+    valorVenta,
+    totalVendido,
+    unidadesVendidas,
+    ventaMayor,
+    ticketPromedio,
+    normalizarCiudad,
+    ventasPorCiudad
+};

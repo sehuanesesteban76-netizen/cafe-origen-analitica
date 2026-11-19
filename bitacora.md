@@ -52,156 +52,226 @@ Regla: `índice = posición − 1`. Confundirlos es un error típico "por uno" (
 
 ---
 
-## MiniReto 2 · Los números del día: recorrer, filtrar y acumular
 
-### Plan en pseudocódigo
+# MiniReto 2 - Los números del día: recorrer, filtrar y acumular
 
-Función auxiliar de normalización usada en las comparaciones:
+## 1. ¿Que se hizo?
 
-```
-normalizar(texto)
-  quitar espacios al inicio y al final; dejar un solo espacio entre palabras
-  pasar a minúsculas; quitar tildes
-```
+En este mini-reto cree varias funciones en JavaScript para analizar las ventas de Café Origen utilice ciclos for..of, condicionales if, contadores y acumuladores para calcular cuánto dinero se vendio, cuantas unidades se vendieron, cual fue la venta más grande y cuál fue el promedio por compra.
 
-```
-valorVenta(venta)
-  RETORNAR venta.cantidad × venta.precio      (si falta un número, usar 0)
+También se creo una función para buscar las ventas de una ciudad, sin importar si está escrita con mayúsculas, minúsculas o espacios sobrantes.
 
-totalVendido(ventas)                           patrón ACUMULADOR
-  total ← 0
-  PARA CADA venta EN ventas
-    total ← total + valorVenta(venta)
-  RETORNAR total
+## 2. Plan en pseudocódigo
 
-unidadesVendidas(ventas)                       patrón ACUMULADOR
-  unidades ← 0
-  PARA CADA venta EN ventas
-    unidades ← unidades + venta.cantidad
-  RETORNAR unidades
+Antes de programar, planteamos como iba a funcionar cada indicador.
 
-ventaMayor(ventas)                             patrón MÁXIMO
-  mayor ← null                                 (todavía no hay candidata)
-  PARA CADA venta EN ventas
-    SI venta.cantidad <= 0 → pasar a la siguiente
-    SI mayor es null O valorVenta(venta) > valorVenta(mayor)
-      mayor ← venta                            (se guarda el registro completo)
-  RETORNAR mayor
+### Función valorVenta
 
-ticketPromedio(ventas)                         ACUMULADOR + CONTADOR
-  total ← 0 ; validas ← 0
-  PARA CADA venta EN ventas
-    SI venta.cantidad > 0
-      total ← total + valorVenta(venta)
-      validas ← validas + 1
-  SI validas = 0 → RETORNAR 0                  (evita 0 / 0 = NaN)
-  RETORNAR total / validas
+Esta función calcula cuanto dinero genero una venta.
 
-ventasPorCiudad(ventas, ciudad)                ACUMULADOR con condición
-  buscada ← normalizar(ciudad)
-  SI buscada está vacía → RETORNAR 0
-  total ← 0
-  PARA CADA venta EN ventas
-    SI normalizar(venta.ciudad) = buscada
-      total ← total + valorVenta(venta)
-  RETORNAR total
-```
+INICIO
+    Recibir una venta
+    Multiplicar cantidad por precio
+    Retornar el resultado
+FIN
 
-| Función            | Qué recorre      | Condición                                | Qué acumula                            | Valor inicial |
-| ------------------ | ---------------- | ---------------------------------------- | -------------------------------------- | ------------- |
-| `totalVendido`     | todas las ventas | ninguna                                  | valor de cada venta                    | `0`           |
-| `unidadesVendidas` | todas las ventas | ninguna                                  | cantidad de cada venta                 | `0`           |
-| `ventaMayor`       | todas las ventas | cantidad > 0 y valor mayor que el actual | el registro de mayor valor             | `null`        |
-| `ticketPromedio`   | todas las ventas | cantidad > 0                             | valor total y número de ventas válidas | `0` y `0`     |
-| `ventasPorCiudad`  | todas las ventas | ciudad normalizada = ciudad buscada      | valor de cada venta que cumple         | `0`           |
+### Función totalVendido
 
-### Comportamiento con el arreglo vacío (decisión documentada)
+Utilizamos un acumulador que comienza en cero y va sumando el valor de cada venta.
 
-| Función                 | Con `[]` devuelve | Por qué                                                                                                                                                               |
-| ----------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `totalVendido`          | `0`               | No se vendió nada.                                                                                                                                                    |
-| `unidadesVendidas`      | `0`               | No salió ninguna unidad.                                                                                                                                              |
-| `ventaMayor`            | `null`            | No hay ningún registro que devolver; inventar uno sería falso. Quien la use debe revisar si es `null`. También devuelve `null` si todas las ventas tienen cantidad 0. |
-| `ticketPromedio`        | `0`               | Dividir entre 0 ventas da `NaN`. Se decide que `0` significa "sin ventas válidas".                                                                                    |
-| `ventasPorCiudad`       | `0`               | No hay ventas en ninguna ciudad. Una ciudad vacía también devuelve `0`.                                                                                               |
-| `valorVenta(undefined)` | `0`               | Un registro ausente no aporta valor.                                                                                                                                  |
+INICIO
+    Recibir arreglo de ventas
+    total = 0
 
-En empate de la venta mayor gana la primera encontrada (se usa `>` y no `>=`).
+    PARA CADA venta DEL arreglo
+        total = total + valorVenta(venta)
+    FIN PARA
 
-### Pruebas con tres entradas
+    Retornar total
+FIN
 
-Se ejecutan con `node src/pruebas.js` (incluye 17 comprobaciones automáticas). Como arreglo de un elemento se usa `[ventas[0]]`.
 
-| Función                          | Completo (12)   | Un elemento   | Vacío  |
-| -------------------------------- | --------------- | ------------- | ------ |
-| `totalVendido`                   | 985.000         | 84.000        | 0      |
-| `unidadesVendidas`               | 21              | 2             | 0      |
-| `ventaMayor`                     | id 10 (168.000) | id 1 (84.000) | `null` |
-| `ticketPromedio`                 | 89.545,45       | 84.000        | 0      |
-| `ventasPorCiudad(…, "Medellín")` | 356.000         | 84.000        | 0      |
+### Función unidadesVendidas
 
-### Traza manual 1 · `totalVendido(ventas)`
+Recorremos las ventas y sumamos la cantidad de productos vendidos.
 
-| Iteración | id  | cantidad × precio | valorVenta | total acumulado |
-| --------- | --- | ----------------- | ---------- | --------------- |
-| inicio    |     |                   |            | 0               |
-| 1         | 1   | 2 × 42.000        | 84.000     | 84.000          |
-| 2         | 2   | 1 × 26.000        | 26.000     | 110.000         |
-| 3         | 3   | 1 × 95.000        | 95.000     | 205.000         |
-| 4         | 4   | 1 × 42.000        | 42.000     | 247.000         |
-| 5         | 5   | 3 × 45.000        | 135.000    | 382.000         |
-| 6         | 6   | 2 × 26.000        | 52.000     | 434.000         |
-| 7         | 7   | 1 × 120.000       | 120.000    | 554.000         |
-| 8         | 8   | 0 × 42.000        | 0          | 554.000         |
-| 9         | 9   | 2 × 45.000        | 90.000     | 644.000         |
-| 10        | 10  | 4 × 42.000        | 168.000    | 812.000         |
-| 11        | 11  | 1 × 95.000        | 95.000     | 907.000         |
-| 12        | 12  | 3 × 26.000        | 78.000     | **985.000**     |
+INICIO
+    Recibir arreglo de ventas
+    unidades = 0
 
-Resultado del programa: `985000`. **Coincide.**
+    PARA CADA venta DEL arreglo
+        unidades = unidades + venta.cantidad
+    FIN PARA
 
-### Traza manual 2 · `ventasPorCiudad(ventas, "Medellín")`
+    Retornar unidades
+FIN
 
-`buscada = normalizar("Medellín") = "medellin"`
+### Función ventaMayor
 
-| id     | ciudad original | normalizada | ¿coincide? | valorVenta | total       |
-| ------ | --------------- | ----------- | ---------- | ---------- | ----------- |
-| inicio |                 |             |            |            | 0           |
-| 1      | Medellín        | medellin    | sí         | 84.000     | 84.000      |
-| 2      | Bogotá          | bogota      | no         |            | 84.000      |
-| 3      | Cali            | cali        | no         |            | 84.000      |
-| 4      | Medellín        | medellin    | sí         | 42.000     | 126.000     |
-| 5      | **medellín**    | medellin    | **sí**     | 135.000    | 261.000     |
-| 6      | Bogotá          | bogota      | no         |            | 261.000     |
-| 7      | Bogotá          | bogota      | no         |            | 261.000     |
-| 8      | Cali            | cali        | no         |            | 261.000     |
-| 9      | Cali            | cali        | no         |            | 261.000     |
-| 10     | Pereira         | pereira     | no         |            | 261.000     |
-| 11     | Medellín        | medellin    | sí         | 95.000     | 356.000     |
-| 12     | Bogotá          | bogota      | no         |            | **356.000** |
+Buscamos el registro que genero mas dinero y guardamos el objeto completo.
 
-Resultado del programa: `356000`. **Coincide**, y confirma que la venta escrita como "medellín" se incluye.
+INICIO
+    Recibir arreglo de ventas
+    mayor = primera venta
 
-### Traza manual 3 · `ventaMayor(ventas)`
+    PARA CADA venta DEL arreglo
+        SI valorVenta(venta) > valorVenta(mayor)
+            mayor = venta
+        FIN SI
+    FIN PARA
 
-| id     | valor   | ¿válida?            | ¿mayor que el actual? | mayor después |
-| ------ | ------- | ------------------- | --------------------- | ------------- |
-| inicio |         |                     |                       | `null`        |
-| 1      | 84.000  | sí                  | sí (no había)         | id 1          |
-| 2      | 26.000  | sí                  | no                    | id 1          |
-| 3      | 95.000  | sí                  | sí                    | id 3          |
-| 4      | 42.000  | sí                  | no                    | id 3          |
-| 5      | 135.000 | sí                  | sí                    | id 5          |
-| 6      | 52.000  | sí                  | no                    | id 5          |
-| 7      | 120.000 | sí                  | no                    | id 5          |
-| 8      | 0       | **no** (cantidad 0) | se salta              | id 5          |
-| 9      | 90.000  | sí                  | no                    | id 5          |
-| 10     | 168.000 | sí                  | sí                    | id 10         |
-| 11     | 95.000  | sí                  | no                    | id 10         |
-| 12     | 78.000  | sí                  | no                    | **id 10**     |
+    Retornar mayor
+FIN
 
-Resultado del programa: registro con `id 10` (Origen Huila 500 g, Pereira, 4 × 42.000 = 168.000). **Coincide.**
 
-Ticket promedio a mano: 985.000 ÷ 11 ventas válidas = 89.545,45. Resultado del programa: `89545.45454545454`. **Coincide.**
+### Función ticketPromedio
 
----
+Calcule el total vendido y conte las ventas que tienen una cantidad mayor que cero.
+
+
+INICIO
+    Recibir arreglo de ventas
+    total = totalVendido(ventas)
+    ventasValidas = 0
+
+    PARA CADA venta DEL arreglo
+        SI venta.cantidad > 0
+            ventasValidas = ventasValidas + 1
+        FIN SI
+    FIN PARA
+
+    SI ventasValidas = 0
+        Retornar 0
+    FIN SI
+
+    promedio = total / ventasValidas
+    Retornar promedio
+FIN
+
+
+### Función normalizarCiudad
+
+Esta función ayuda a que los nombres de las ciudades se puedan comparar correctamente.
+
+
+INICIO
+    Recibir un texto
+    Quitar espacios al inicio y al final
+    Convertir el texto a minúsculas
+    Retornar el texto normalizado
+FIN
+
+### Función ventasPorCiudad
+
+Se recorre las ventas y se suma el valor de aquellas que pertenecen a la ciudad buscada.
+
+INICIO
+    Recibir ventas y ciudad
+    total = 0
+    Normalizar la ciudad buscada
+
+    PARA CADA venta DEL arreglo
+        Normalizar la ciudad de la venta
+
+        SI las ciudades son iguales
+            total = total + valorVenta(venta)
+        FIN SI
+    FIN PARA
+
+    Retornar total
+FIN
+
+## 3. Patrones utilizados
+
+| Función          | Patrón                 | ¿Para qué se utilizó?                        |
+|------------------|------------------------|----------------------------------------------|
+| valorVenta       | Cálculo                | Multiplicar cantidad por precio              |
+| totalVendido     | Acumulador             | Sumar el dinero vendido                      |
+| unidadesVendidas | Acumulador             | Sumar las unidades                           |
+| ventaMayor       | Máximo                 | Encontrar la venta de mayor valor            |
+| ticketPromedio   | Contador y acumulador  | Contar ventas válidas y calcular el promedio |
+| normalizarCiudad | Normalización          | Comparar ciudades correctamente              |
+| ventasPorCiudad  | Acumulador y condición | Sumar únicamente las ventas de una ciudad    |
+
+## 4. Casos borde y decisiones
+
+Tambien revisamos que sucede cuando las funciones reciben un arreglo vacío o encuentran datos especiales.
+
+| Función          | Resultado con arreglo vacío | Decisión                                   |
+|------------------|-----------------------------|--------------------------------------------|
+| totalVendido     | 0                           | No existen ventas para sumar               |
+| unidadesVendidas | 0                           | No hay unidades vendidas                   |
+| ventaMayor       | undefined                   | No existe un primer elemento para comparar |
+| ticketPromedio   | 0                           | Evitamos dividir entre cero y obtener NaN  |
+| ventasPorCiudad  | 0                           | No hay ventas de la ciudad buscada         |
+
+La función valorVenta recibe un objeto individual y normalizarCiudad recibe un texto, por lo que no trabajan directamente con arreglos.
+También encontramos una venta con cantidad igual a cero, esta no se cuenta como venta válida para calcular el ticket promedio.
+**Nota:** En ticketPromedio debemos comprobar que el contador sea mayor que cero antes de dividir, para evitar que el resultado sea `NaN.
+
+## 5. Pruebas realizadas
+
+Para comprobar las funciones, se prepararon pruebas con las 12 ventas, un arreglo con una sola venta y un arreglo vacío.
+
+| Función                    | Arreglo completo | Un elemento | Arreglo vacío |
+|----------------------------|------------------|-------------|---------------|
+| totalVendido               | 985000           | 84000       | 0             |
+| unidadesVendidas           | 21               | 2           | 0             |
+| ventaMayor                 | id 10            | id 1        | undefined     |
+| ticketPromedio             | 89545.45 aprox.  | 84000       | 0 esperado    |
+| ventasPorCiudad (Medellín) | 356000           | 84000       | 0             |
+
+En las pruebas utilice console.log() y el operador === para comparar los resultados obtenidos con los esperados y cuando los dos valores coinciden console.log muestra true o si son diferentes, muestra false también probe valorVenta con distintas ventas y normalizarCiudad con textos escritos de diferentes maneras.
+
+## 6. Tabla de traza 1 - Total vendido
+
+Verificicon manualmente cuanto dinero generaron las ventas.
+En cada vuelta se multiplica la cantidad por el precio y agregamos el resultado al acumulador.
+
+| ID | Cantidad | Precio | Valor venta | Total acumulado |
+|----|----------|--------|-------------|-----------------|
+| 1  | 2        | 42000  | 84000       | 84000           |
+| 2  | 1        | 26000  | 26000       | 110000          |
+| 3  | 1        | 95000  | 95000       | 205000          |
+| 4  | 1        | 42000  | 42000       | 247000          |
+| 5  | 3        | 45000  | 135000      | 382000          |
+| 6  | 2        | 26000  | 52000       | 434000          |
+| 7  | 1        | 120000 | 120000      | 554000          |
+| 8  | 0        | 42000  | 0           | 554000          |
+| 9  | 2        | 45000  | 90000       | 644000          |
+| 10 | 4        | 42000  | 168000      | 812000          |
+| 11 | 1        | 95000  | 95000       | 907000          |
+| 12 | 3        | 26000  | 78000       | 985000          |
+
+**Resultado que espere: 985000**
+
+Este es el resultado que debe devolver totalVendido(ventas).
+
+## 7. Tabla de traza 2 - Venta mayor
+
+En esta función compare el valor de cada venta con la mayor que tenia guardada y si i encontraba una venta de mayor valor, actualizaba la variable.
+
+| ID revisado | Valor de la venta | Venta mayor guardada |
+|-------------|-------------------|----------------------|
+| 1           | 84000             | ID 1                 |
+| 2           | 26000             | ID 1                 |
+| 3           | 95000             | ID 3                 |
+| 4           | 42000             | ID 3                 |
+| 5           | 135000            | ID 5                 |
+| 6           | 52000             | ID 5                 |
+| 7           | 120000            | ID 5                 |
+| 8           | 0                 | ID 5                 |
+| 9           | 90000             | ID 5                 |
+| 10          | 168000            | ID 10                |
+| 11          | 95000             | ID 10                |
+| 12          | 78000             | ID 10                |
+
+**Resultado que espere: venta con ID 10 por 168000**
+
+La función devuelve el objeto completo de esa venta, no solamente su valor.
+
+## 8. Conclusión
+
+En este mini-reto aprendi a utilizar los ciclos for...of para recorrer arreglos de objetos y calcular información a partir de sus propiedades con este ciclo puedo acuidir directamente a la propiedad en cambio con for... in solo a la posición, tambien practique los contadores, acumuladores, condicionales y comparaciones para encontrar resultados como el total vendido, las unidades y la venta mayor, las pruebas ayudaron a identificar problemas que pueden aparecer cuando no existen ventas o cuando alguna tiene una cantidad igual a cero.
+
+Algo que me gusto implementar y aprendi fue el signo ? para que el console.log me devuelva undefined cuando es error y asi no se me corte.

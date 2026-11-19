@@ -1,70 +1,164 @@
-const { ventas } = require('./datos');
+
+const { ventas } = require("./datos.js");
+
 const {
     valorVenta,
     totalVendido,
     unidadesVendidas,
     ventaMayor,
     ticketPromedio,
-    ventasPorCiudad,
-} = require('./analitica');
+    normalizarCiudad,
+    ventasPorCiudad
+} = require("./analitica.js");
 
-const casos = [
-    { nombre: 'Completo (12)', datos: ventas },
-    { nombre: 'Un elemento', datos: [ventas[0]] },
-    { nombre: 'Vacío', datos: [] },
+
+
+// 1. PRUEBAS DE VALOR VENTA
+
+
+// PRUEBA 1: Recorrer todo.
+
+const valoresEsperados = [
+    84000, 26000, 95000, 42000,
+    135000, 52000, 120000, 0,
+    90000, 168000, 95000, 78000
 ];
 
-function describirVenta(venta) {
-    return venta === null ? 'null' : `id ${venta.id} (${valorVenta(venta)})`;
+let posicion = 0;
+
+for (let venta of ventas) {
+    console.log(
+        valorVenta(venta) === valoresEsperados[posicion]
+    );
+    posicion++;
 }
 
-console.log('=== Resultados por entrada ===');
-const filas = [];
-for (const caso of casos) {
-    filas.push({
-        entrada: caso.nombre,
-        totalVendido: totalVendido(caso.datos),
-        unidadesVendidas: unidadesVendidas(caso.datos),
-        ventaMayor: describirVenta(ventaMayor(caso.datos)),
-        ticketPromedio: Number(ticketPromedio(caso.datos).toFixed(2)),
-        'ventasPorCiudad(Medellín)': ventasPorCiudad(caso.datos, 'Medellín'),
-    });
-}
-console.table(filas);
+// PRUEBA 2: Una sola venta.
 
-const comprobaciones = [
-    ['valorVenta(ventas[0]) = 84000', valorVenta(ventas[0]) === 84000],
-    ['valorVenta(venta con cantidad 0) = 0', valorVenta(ventas[7]) === 0],
-    ['valorVenta(undefined) = 0', valorVenta(undefined) === 0],
-    ['totalVendido(ventas) = 985000', totalVendido(ventas) === 985000],
-    ['unidadesVendidas(ventas) = 21', unidadesVendidas(ventas) === 21],
-    ['ventaMayor(ventas) es el id 10', ventaMayor(ventas).id === 10],
-    ['ticketPromedio(ventas) = 985000 / 11', ticketPromedio(ventas) === 985000 / 11],
-    [
-        'ventasPorCiudad(ventas, "Medellín") = 356000 (incluye "medellín")',
-        ventasPorCiudad(ventas, 'Medellín') === 356000,
-    ],
-    [
-        'ventasPorCiudad ignora mayúsculas y espacios ("  MEDELLÍN ")',
-        ventasPorCiudad(ventas, '  MEDELLÍN ') === 356000,
-    ],
-    ['ventasPorCiudad de una ciudad sin ventas = 0', ventasPorCiudad(ventas, 'Cartagena') === 0],
-    ['totalVendido([]) = 0', totalVendido([]) === 0],
-    ['unidadesVendidas([]) = 0', unidadesVendidas([]) === 0],
-    ['ventaMayor([]) = null', ventaMayor([]) === null],
-    ['ticketPromedio([]) = 0 (no NaN)', ticketPromedio([]) === 0],
-    ['ventasPorCiudad([], "Medellín") = 0', ventasPorCiudad([], 'Medellín') === 0],
-    ['ventaMayor sin ventas válidas = null', ventaMayor([ventas[7]]) === null],
-    ['ticketPromedio sin ventas válidas = 0', ticketPromedio([ventas[7]]) === 0],
-];
+console.log(valorVenta(ventas[0]) === 84000);
 
-console.log('\n=== Pruebas ===');
-let fallas = 0;
-for (const [descripcion, cumple] of comprobaciones) {
-    console.log(`${cumple ? 'OK   ' : 'FALLA'}  ${descripcion}`);
-    if (!cumple) fallas++;
+// PRUEBA 3: No hay ventas.
+
+let procesos = 0;
+
+for (let venta of []) {
+    valorVenta(venta);
+    procesadas++;
 }
+
+console.log(procesos === 0);
+
+
+
+// 2. PRUEBAS DE TOTAL VENDIDO
+
+
+// PRUEBA 1: Arreglo completo.
+
+console.log(totalVendido(ventas) === 985000);
+
+// PRUEBA 2: Una sola venta.
+
+console.log(totalVendido([ventas[0]]) === 84000);
+
+// PRUEBA 3: Arreglo vacío.
+
+console.log(totalVendido([]) === 0);
+
+
+
+// 3. PRUEBAS DE UNIDADES VENDIDAS
+
+
+// PRUEBA 1: Arreglo completo.
+
+console.log(unidadesVendidas(ventas) === 21);
+
+// PRUEBA 2: Una sola venta.
+
+console.log(unidadesVendidas([ventas[0]]) === 2);
+
+// PRUEBA 3: Arreglo vacío.
+
+console.log(unidadesVendidas([]) === 0);
+
+
+
+// 4. PRUEBAS DE VENTA MAYOR
+
+
+// PRUEBA 1: Arreglo completo.
+
+console.log(ventaMayor(ventas)?.id === 10);
+
+// PRUEBA 2: Una sola venta
+
+console.log(ventaMayor([ventas[0]]).id === 1);
+
+// PRUEBA 3: Arreglo vacío.
+
+console.log(ventaMayor([]) === undefined);
+
+
+
+// 5. PRUEBAS DE TICKET PROMEDIO
+
+
+// PRUEBA 1: Arreglo completo.
+
+console.log(ticketPromedio(ventas) === 985000 / 11);
+
+// PRUEBA 2: Una sola venta.
+
+console.log(ticketPromedio([ventas[0]]) === 84000);
+
+// PRUEBA 3: Arreglo vacío.
+
+console.log(ticketPromedio([]) === 0);
+
+
+
+// 6. PRUEBAS DE NORMALIZAR CIUDAD
+
+// PRUEBA 1: Elimina espacios sobrantes.
+
 console.log(
-    `\n${comprobaciones.length - fallas}/${comprobaciones.length} comprobaciones correctas.`
+    normalizarCiudad(" Medellín ") === "medellín"
 );
-if (fallas > 0) process.exitCode = 1;
+
+// PRUEBA 2: Convierte mayúsculas a minúsculas.
+
+console.log(
+    normalizarCiudad("BOGOTÁ") === "bogotá"
+);
+
+// PRUEBA 3: Recibe un texto vacío.
+
+console.log(
+    normalizarCiudad("") === ""
+);
+
+
+
+// 7. PRUEBAS DE VENTAS POR CIUDAD
+
+
+// PRUEBA 1: Arreglo completo.
+console.log(ventasPorCiudad(ventas, "Medellín") === 356000
+);
+
+// PRUEBA 2: Una sola venta.
+
+console.log(
+    ventasPorCiudad([ventas[0]], "Medellín") === 84000
+);
+
+// PRUEBA 3: Arreglo vacío.
+
+console.log(
+    ventasPorCiudad([], "Medellín") === 0
+);
+
+
+
+
