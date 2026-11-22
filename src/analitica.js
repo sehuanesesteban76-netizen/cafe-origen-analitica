@@ -57,11 +57,101 @@ function ventasPorCiudad(ventas, ciudad) {
     const ciudadEstarandizada = normalizarCiudad(ciudad)
     for (let venta of ventas) {
         if (normalizarCiudad(venta.ciudad) === ciudadEstarandizada) {
-            totalVendido += venta.cantidad * venta.precio
+            totalVendido += valorVenta(venta)
         }
     }
     return totalVendido
 }
+
+function totalPorCiudad (ventas){
+    let totalCiudades = {}
+    let ciudades = []
+    for (const venta of ventas ){
+        let ciudad = normalizarCiudad(venta.ciudad)
+        if (!ciudad)continue
+        
+        if (!ciudades.includes(ciudad)){
+            ciudades.push(ciudad)
+            totalCiudades[ciudad] = 0
+        } 
+        totalCiudades[ciudad] += valorVenta(venta)
+    }
+    return totalCiudades
+    
+}
+
+function unidadesPorProducto(ventas){
+    let unidadesProducto = {}
+    let productos = []
+    for (const venta of ventas){
+        let producto = venta.producto
+        if (!producto)continue
+
+        if (!productos.includes(producto)){
+            productos.push(producto)
+            unidadesProducto[producto] = 0
+
+        }
+        unidadesProducto[producto] += venta.cantidad
+    }
+    return unidadesProducto
+}
+
+
+function topProductosPorValor (ventas,k){
+    let totalProductos = {}
+    for (let venta of ventas){
+        let producto = venta.producto
+        if (!Object.hasOwn(totalProductos, producto)){
+            totalProductos[producto] = 0
+        }
+        totalProductos[producto] += valorVenta(venta)
+    }
+    let productosParesClaveValor = Object.entries(totalProductos) //Aca estan los productos convertidos en un arreglo de pares clave-valor
+    let productosOrdenadosMayorMenor = [...productosParesClaveValor] // Aca copie el arreglo para que se tenga evidecnia de como se tenia sin ordenar y despues de ordenar 
+    productosOrdenadosMayorMenor = productosOrdenadosMayorMenor.sort((a,b) => {
+        return b[1] - a[1]  // Aca estan ordenados de mayor a menor y con ayuda del object.entries ahora se puede acceder a cada producto mediante de la posicion y asi poder ordenar
+    })
+
+    return productosOrdenadosMayorMenor.slice(0,k)
+}
+
+
+//Versiones de funciones (totalVendido, unidadesVendidas, ventadPorCiudad) pero con metodos
+function totalVendidoM(ventas){
+    let total = ventas.map((venta) => {
+        return valorVenta(venta)
+    })
+    
+    total = total.reduce ((acumulador, valor)=>{
+        acumulador += valor
+        return acumulador
+    }, 0)
+    return total
+}
+
+
+function unidadesVendidasM(ventas){
+    let unidadesVendidas = ventas.reduce ((acumulador,venta)=>{
+        acumulador += venta.cantidad
+        return acumulador
+    }, 0) 
+    return unidadesVendidas
+}
+
+function ventasPorCiudadM(ventas, ciudad){
+    let ciudadEstandarizada = normalizarCiudad(ciudad)
+    let ventasCiudad = ventas.filter((venta) => {
+        return ciudadEstandarizada === normalizarCiudad(venta.ciudad)
+    })
+    ventasCiudad = ventasCiudad.reduce((acumulador, venta) => {
+        acumulador += valorVenta(venta)
+        return acumulador
+    }, 0)
+    return ventasCiudad
+}
+
+
 
 module.exports = {
     valorVenta,
@@ -70,5 +160,8 @@ module.exports = {
     ventaMayor,
     ticketPromedio,
     normalizarCiudad,
-    ventasPorCiudad
+    ventasPorCiudad,
+    totalVendidoM,
+    unidadesVendidasM,
+    ventasPorCiudadM
 };
