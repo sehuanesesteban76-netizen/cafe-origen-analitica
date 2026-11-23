@@ -364,3 +364,26 @@ En este mini-reto use map, filter y reduce para calcular los indicadores de vent
 | 1    | Las 12 ventas con k = 3 | [["Origen Huila 500 g", 294000], ["Origen Sierra 500 g", 225000], ["Prensa francesa", 190000]] |
 | 2    | Las 12 ventas con k = 1 | [["Origen Huila 500 g", 294000]]. Los IDs de ventas conservan el orden del 1 al 12 antes y después de la llamada. |
 | 3    | Arreglo vacío con k = 3 | [] |
+
+
+## MiniReto 4 - Analitica v0.1 el primer reporte
+
+En este mini reto hice un reporte en consola para ver el total vendido, las unidades, el ticket promedio, las ventas por ciudad y los tres productos que mas dinero generaron tambien agregue un resumen para un dia con ventas y otro sin ventas.
+
+### Caso 1. Bogota aparecia dos veces
+
+- **Caso** La gerente reporto que Bogota salia dos veces en el reporte.
+- **Entrada que lo produce** Una lista de ventas donde la misma ciudad esta escrita con distintas mayusculas o con espacios de mas. Un ejemplo es "Bogotá" y " bogotá" y este fue el ejemplo que use.
+- **Hipotesis** Pense que al agrupar por el nombre tal como viene iba a salir igualmente una sola vez porque habia corroborado que mi funcion normalizarCiudad le di bien los metodos para estos errores.
+- **Prueba realizada** Consulte Bogota con ventasPorCiudad usando el arreglo completo y el total fue de 276000 ,tambien revise el resultado de totalPorCiudad y vi que Bogota aparecia una sola vez con 276000 , ademas la prueba para que se consulten los dos casos la deje doumentada en el archivo analitica.js debajo de la funcion ventasPorCiudadM los dos console.log con las diferentes escrituras de Bogotá para que se compruebe.
+- **Causa** Las variantes del nombre son textos diferentes si el programa usa esos textos como claves directamente, puede crear un grupo para cada variante.
+- **Correccion** En totalPorCiudad uso normalizarCiudad antes de agrupar asi que la funcion quita los espacios de los extremos y pasa el nombre a minusculas y asi las ventas quedan bajo la misma clave como ya se tenia.
+
+### Caso 2. El ticket promedio daba NaN
+
+- **Sintoma** Al consultar un dia sin ventas, el total y las unidades salian en 0, pero el ticket promedio salia como NaN.
+- **Entrada que lo produce** Consulte la fecha 2026-09-07, que no tiene ventas en el arreglo.
+- **Hipotesis** Pense que el ticket promedio estaba dividiendo entre cero porque ese dia no habia ventas validas.
+- **Prueba realizada** En la primera prueba obtuve 0 en el total, 0 en unidades y NaN en el ticket promedio y despues de agregar la condicion, el resultado esperado para esa misma fecha es 0.
+- **Causa** El filtro devolvia un arreglo vacio El total vendido y el contador de ventas validas quedaban en 0, asi que la division era 0 / 0 y por eso daba NaN.
+- **Correccion** En ticketPromedio agregue una condicion antes de dividi que fue  si el contador de ventas validas es 0, la funcion devuelve 0.

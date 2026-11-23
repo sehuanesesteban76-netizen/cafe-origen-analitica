@@ -6,7 +6,7 @@ function valorVenta(venta) {
 
 function totalVendido(ventas) {
     let total = 0
-    for (let venta of ventas) {
+    for (const venta of ventas) {
         total += valorVenta(venta)
     }
     return total
@@ -14,7 +14,7 @@ function totalVendido(ventas) {
 
 function unidadesVendidas(ventas) {
     let cantidadUnidades = 0
-    for (let venta of ventas) {
+    for (const venta of ventas) {
         cantidadUnidades += venta.cantidad
     }
     return cantidadUnidades
@@ -22,7 +22,7 @@ function unidadesVendidas(ventas) {
 
 function ventaMayor(ventas) {
     let ventaMayor = ventas[0]
-    for (let venta of ventas) {
+    for (const venta of ventas) {
         if (valorVenta(ventaMayor) < valorVenta(venta)) {
             ventaMayor = venta
         }
@@ -35,11 +35,14 @@ function ticketPromedio(ventas) {
     const total = totalVendido(ventas)
 
     let ventasValida = 0
-    for (let venta of ventas) {
+    for (const venta of ventas) {
         if (venta.cantidad > 0) {
             ventasValida += 1
         }
     }
+    if(ventasValida === 0){
+            return 0
+        }
     const division = total / ventasValida
     return division
 }
@@ -55,7 +58,7 @@ function normalizarCiudad(texto) {
 function ventasPorCiudad(ventas, ciudad) {
     let totalVendido = 0
     const ciudadEstarandizada = normalizarCiudad(ciudad)
-    for (let venta of ventas) {
+    for (const venta of ventas) {
         if (normalizarCiudad(venta.ciudad) === ciudadEstarandizada) {
             totalVendido += valorVenta(venta)
         }
@@ -100,7 +103,7 @@ function unidadesPorProducto(ventas){
 
 function topProductosPorValor (ventas,k){
     let totalProductos = {}
-    for (let venta of ventas){
+    for (const venta of ventas){
         let producto = venta.producto
         if (!Object.hasOwn(totalProductos, producto)){
             totalProductos[producto] = 0
@@ -116,6 +119,33 @@ function topProductosPorValor (ventas,k){
     return productosOrdenadosMayorMenor.slice(0,k)
 }
 
+function ventasDelDia(ventas, fecha){
+    const fechaDia = fecha
+    let ventasDia = ventas.filter((venta) => {
+        if (venta.fecha === fechaDia){
+            return venta
+        }
+    })
+    const unidadesVendidas = ventasDia.reduce((acumulador, venta) => {
+        acumulador += venta.cantidad
+        return acumulador
+    }, 0)
+
+    const Promedio = ticketPromedio(ventasDia)
+
+    ventasDia = ventasDia.reduce((acumulador, venta) => {
+        acumulador += valorVenta(venta)
+        return acumulador
+    }, 0)
+
+    
+
+    return {
+        ventasDia,
+        unidadesVendidas,
+        Promedio
+    }
+}
 
 //Versiones de funciones (totalVendido, unidadesVendidas, ventadPorCiudad) pero con metodos
 function totalVendidoM(ventas){
@@ -151,6 +181,9 @@ function ventasPorCiudadM(ventas, ciudad){
     return ventasCiudad
 }
 
+// Demostracion que los dos errores del agente no estan en mi funcion, para  ver la prueba se descomenta los dos console.log y se verifica que dan los mismos resultados
+// console.log(ventasPorCiudadM(ventas, " bogotá"))
+// console.log(ventasPorCiudadM(ventas, "Bogotá"))
 
 
 module.exports = {
@@ -163,5 +196,9 @@ module.exports = {
     ventasPorCiudad,
     totalVendidoM,
     unidadesVendidasM,
-    ventasPorCiudadM
+    ventasPorCiudadM,
+    totalPorCiudad,
+    unidadesPorProducto,
+    topProductosPorValor,
+    ventasDelDia
 };
