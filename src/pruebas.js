@@ -8,9 +8,13 @@ const {
     ventaMayor,
     ticketPromedio,
     normalizarCiudad,
-    ventasPorCiudad
+    ventasPorCiudad,
+    clientesRecurrentes
 } = require("./analitica.js");
 
+const {
+    generarVentas
+} = require("./generador.js")
 
 
 // 1. PRUEBAS DE VALOR VENTA
@@ -162,3 +166,10 @@ console.log(
 
 
 
+//Prueba de tiempo mini-reto 6 punto 3, y poder mirarlo en la tabla
+
+const ventasPrueba = generarVentas(100000)
+
+console.time("ventasPrueba")
+clientesRecurrentes(ventasPrueba)
+console.timeEnd("ventasPrueba")

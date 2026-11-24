@@ -150,7 +150,7 @@ function ventasDelDia(ventas, fecha) {
 // Version instrumentada de las funciones (totalVendido, ventaMayor, totalPorCiudad)
 
 const contadorTotalVendido = {
-    operaciones : 0
+    operaciones: 0
 }
 function totalVendidoInstrumentada(ventas, contador) {
     let total = 0
@@ -164,7 +164,7 @@ function totalVendidoInstrumentada(ventas, contador) {
 //console.log("Total contador de la funcion  totalVendido: ", contadorTotalVendido)
 
 const contadorVentaMayor = {
-    operaciones : 0
+    operaciones: 0
 }
 
 function ventaMayorInstrumentada(ventas, contador) {
@@ -184,7 +184,7 @@ function ventaMayorInstrumentada(ventas, contador) {
 
 
 const contadorTotalPorCiudad = {
-    operaciones : 0
+    operaciones: 0
 }
 
 function totalPorCiudadEstandarizada(ventas, contador) {
@@ -194,14 +194,14 @@ function totalPorCiudadEstandarizada(ventas, contador) {
         contador.operaciones += 1
         let ciudad = normalizarCiudad(venta.ciudad)
         contador.operaciones += 1
-        if (!ciudad)continue
+        if (!ciudad) continue
 
         contador.operaciones += 1
         if (!ciudades.includes(ciudad)) {
             ciudades.push(ciudad)
             totalCiudades[ciudad] = 0
         }
-    
+
         totalCiudades[ciudad] += valorVenta(venta)
     }
     return totalCiudades
@@ -210,11 +210,26 @@ function totalPorCiudadEstandarizada(ventas, contador) {
 //console.log("\nTotal por ciudad: ",totalPorCiudadEstandarizada(ventas,contadorTotalPorCiudad))
 //console.log("Contador total por ciudad: ", contadorTotalPorCiudad)
 
-function primeraVenta(ventas, contador){
+function primeraVenta(ventas, contador) {
     contador.operaciones += 1
     let venta1 = valorVenta(ventas[0])
     return venta1
 }
+
+function clientesRecurrentes(ventas) {
+    const recurrentes = [];
+
+    for (let i = 0; i < ventas.length; i++) {
+        for (let j = i + 1; j < ventas.length; j++) {
+            if (ventas[i].cliente === ventas[j].cliente && !recurrentes.includes(ventas[i].cliente)) {
+                recurrentes.push(ventas[i].cliente);
+            }
+        }
+    }
+
+    return recurrentes;
+}
+console.log(clientesRecurrentes(ventas))
 
 
 
@@ -275,5 +290,6 @@ module.exports = {
     totalVendidoInstrumentada,
     ventaMayorInstrumentada,
     totalPorCiudadEstandarizada,
-    primeraVenta
+    primeraVenta,
+    clientesRecurrentes
 };

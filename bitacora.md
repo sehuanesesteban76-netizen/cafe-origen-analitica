@@ -419,3 +419,102 @@ Mi prediccion fue que al multiplicar por 10 la cantidad de ventas, las operacion
 - totalPorCiudad es O(n) en esta prueba porque recorre todas las ventas una vez y la busqueda con includes() revisa una lista de hasta cuatro ciudades conte una visita y dos comprobaciones por cada venta generada.
 
 - primeraVenta es O(1) porque accede directamente a ventas[0] incluso con 100.000 ventas, el contador sigue dando una sola operación.
+
+
+## Mini-reto 6: El reporte que se volvio lento 
+
+Punto 2 - Traza de clientes recurrentes
+
+Para la prueba use 5 ventas con estos clientes en orden
+
+| posicion | 0   | 1   | 2   | 3   | 4   |
+|----------|-----|-----|-----|-----|-----|
+| cliente  | C01 | C02 | C01 | C03 | C02 |
+
+El primer ciclo coge una venta con i y el segundo compara esa venta con las que vienen despues  
+j empieza en i + 1 para comparar cada par una sola vez
+
+| i | j | clientes que compare | coinciden | recurrentes    |
+|---|---|----------------------|-----------|----------------|
+| 0 | 1 | C01 y C02            | no        | []             |
+| 0 | 2 | C01 y C01            | si        | ["C01"]        |
+| 0 | 3 | C01 y C03            | no        | ["C01"]        |
+| 0 | 4 | C01 y C02            | no        | ["C01"]        |
+| 1 | 2 | C02 y C01            | no        | ["C01"]        |
+| 1 | 3 | C02 y C03            | no        | ["C01"]        |
+| 1 | 4 | C02 y C02            | si        | ["C01", "C02"] |
+| 2 | 3 | C01 y C03            | no        | ["C01", "C02"] |
+| 2 | 4 | C01 y C02            | no        | ["C01", "C02"] |
+| 3 | 4 | C03 y C02            | no        | ["C01", "C02"] |
+
+Cuando i llega a 4 ya no quedan ventas despues de esa posicion  
+En total se hacen 4 + 3 + 2 + 1 + 0 = 10 comparaciones entre clientes  
+La funcion devuelve ["C01", "C02"] porque ambos compraron dos veces
+
+Comparaciones con n ventas
+
+Con n ventas cada una tiene n - 1 posibles ventas para comparar  
+Si multiplico n × (n - 1) estoy contando cada par dos veces por ejemplo la venta 0 con la 1 y la venta 1 con la 0  
+Por eso divido entre 2 y queda n × (n - 1) / 2
+
+Con 5 ventas da 5 × 4 / 2 = 10 que es lo mismo que salio en la tabla  aca conte las comparaciones entre los clientes de las ventas y el costo de includes() esto lo reviso en el punto 6
+
+Punto 3. Medicion del tiempo de clientes recurrentes
+
+Aca use la función generarVentas del mini-reto 5 para hacer las pruebas con diferentes cantidades de ventas, primero genere las ventas y despues use console.time para empezar a medir justo antes de llamar a clientesRecurrentes y cuando la funcion termino use console.timeEnd con el mismo nombre y asi pude ver cuanto se demoro solo la funcion.
+
+| Cantidad de ventas | Tiempo medido |
+|--------------------|--------------:|
+| 1.000              | 6,589 ms      |
+| 2.000              | 18,099 ms     |
+| 4.000              | 74,075 ms     |
+| 8.000              | 372,998 ms    |
+| 16.000             | 1.278 s      |
+
+El ultimo tiempo salio en segundos en la consola y los valores de cada cantidad pueden ir variando mediante cada vez que se corre el codigo.
+
+Punto 4. Que pasa con el tiempo cuando duplico las ventas
+
+Use los tiempos de la tabla del punto 3 y dividi cada tiempo por el de la prueba anterior para ver cuantas veces se multiplico.
+
+| Cantidad de ventas  | Division de los tiempos en ms | Cuantas veces se multiplico |
+|---------------------|-------------------------------|-----------------------------|
+| De 1.000 a 2.000    | 18,099 / 6,589                | 2,75 veces                  |
+| De 2.000 a 4.000    | 74,075 / 18,099               | 4,09 veces                  |
+| De 4.000 a 8.000    | 372,998 / 74,075              | 5,04 veces                  |
+| De 8.000 a 16.000   | 1.278 / 372,998               | 3,43 veces                  |
+
+El resultado que mas se acerco a 4 fue el de 2.000 a 4.000 ventas con 4,09 veces en cambio los otros aumentos quedaron entre 2,75 y 5,04 veces y los valores pueden variar mediante cada  vez que se corre el codigo.
+
+Esto se relaciona con O(n²) porque la función usa dos ciclos para comparar cada venta con las que vienen despues como se ve en la traza con n ventas se hacen n × (n - 1) / 2 comparaciones entre clientes. Al duplicar las ventas espero que esa cantidad de comparaciones sea casi cuatro veces mayor y eso explica por que el tiempo crece tanto aunque el aumento varie entre pruebas.
+
+
+Punto 5. Estimacion para 100.000 y 1.000.000 de ventas
+
+Primero tome el tiempo de la prueba de 16.000 ventas que me dio 1,278 segundos. Para estimar cuanto tardaria con mas ventas dividi la nueva cantidad entre 16.000 y eleve ese resultado al cuadrado. Despues multiplique ese valor por el tiempo de la prueba.
+
+| Cantidad de ventas | Calculo                       | Tiempo estimado            |
+|--------------------|-------------------------------|----------------------------|
+| 100.000            | 1,278 × (100.000 / 16.000)²   | 49,92 segundos             |
+| 1.000.000          | 1,278 × (1.000.000 / 16.000)² | 1 hora y 23 minutos aprox. |
+
+Como la estimacion de 100.000 ventas quedo por debajo de 2 minutos hice la prueba y me dio aproximadamente 42 segundos la funcion tardo casi 8 segundos menos de lo que habia estimado ya que cada vez que corro el codigo me da un valor nuevo.
+
+Con ese tiempo hice una nueva estimacion para 1.000.000 de ventas de 100.000 a 1.000.000 hay 10 veces mas ventas y con el crecimiento cuadratico el tiempo se multiplica por 10² que da 100.
+
+42 segundos × 100 = 4200 segundos
+4200 segundos ÷ 60 = 70 minutos
+
+Con la prueba de 100.000 ventas como base ahora estimo que con 1.000.000 la funcinó tardaria aproximadamente 1 hora y 10 minutos.
+
+
+Punto 6. Costo oculto de includes()
+
+Cuando dos ventas son del mismo cliente, la funcion usa includes() para mirar si ese cliente ya estaba en el arreglo de recurrentes si el cliente esta al final o todavia no se ha agregado, includes() tiene que revisar toda la lista.
+
+Por ejemplo si primero tengo muchos clientes que compraron dos veces, la lista de recurrentes ya tiene varios nombres guardados. Si despues tengo muchas ventas de un solo cliente, los dos ciclos encuentran muchos pares de ese mismo cliente y cada vez includes() vuelve a buscarlo hasta el final de la lista, en el peor caso puedo tener una cantidad de coincidencias que crece como n² y cada busqueda puede revisar una cantidad de clientes que crece como n por eso el trabajo total en ese caso puede llegar a O(n³).
+
+
+Punto 7. Conclusión para la gerente
+
+El reporte se demora porque para saber quienes volvieron a comprar, el sistema compara cada venta con muchas otras. Cada vez que encuentra dos compras de la misma persona tambien revisa si esa persona ya aparece en el resultado,con pocas ventas eso se hace rapido pero con todo el historial del año hay muchas mas compras por cruzar y por eso el reporte puede tardar bastante mas.
