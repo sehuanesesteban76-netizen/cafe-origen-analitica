@@ -387,3 +387,35 @@ En este mini reto hice un reporte en consola para ver el total vendido, las unid
 - **Prueba realizada** En la primera prueba obtuve 0 en el total, 0 en unidades y NaN en el ticket promedio y despues de agregar la condicion, el resultado esperado para esa misma fecha es 0.
 - **Causa** El filtro devolvia un arreglo vacio El total vendido y el contador de ventas validas quedaban en 0, asi que la division era 0 / 0 y por eso daba NaN.
 - **Correccion** En ticketPromedio agregue una condicion antes de dividi que fue  si el contador de ventas validas es 0, la funcion devuelve 0.
+
+
+## Mini-reto 5: ¿Cuanto cuesta cada reporte?
+
+## Punto 3. Predicción antes de medir
+- Si la cantidad de ventas se multiplica por 10 espero que el numero de operaciones tambien se multiplique por 10 en las tres funciones.
+
+- totalVendido cuenta una visita por cada venta. Si paso de 100 a 1.000 ventas, espero que el contador pase de 100 a 1.000 operaciones.
+
+- ventaMayor cuenta una visita y una comparación por cada venta. Si paso de 100 a 1.000 ventas, espero que el contador pase de 200 a 2.000 operaciones.
+
+- totalPorCiudad cuenta una visita, una comprobación para saber si la venta tiene ciudad y una búsqueda con includes() para saber si la ciudad ya esta registrada como todas las ventas generadas tienen ciudad y cuento cada llamada a includes() como una operación, espero pasar de 300 a 3.000 operaciones.
+
+## Punto 6. Comparación de la predicción con los resultados
+
+Mi prediccion fue que al multiplicar por 10 la cantidad de ventas, las operaciones de totalVendido, ventaMayor y totalPorCiudad también se multiplicarian por 10. La tabla confirmo esa predicción en los cuatro tamaños.
+
+|Función	    |Con 100 ventas| Con 1.000 ventas|	Complejidad |
+|---------------|--------------|-----------------|--------------|
+|totalVendido   |100	       |1.000	         |       O(n)   |
+|ventaMayor	    |200	       |2.000	         |       O(n)   |
+|totalPorCiudad	|300	       |3.000	         |       O(n)   |
+|primeraVenta	|1	           |1	             |       O(1)   |
+
+
+- totalVendido es O(n) porque el for visita cada venta una vez cada venta agrega una operación al contador.
+
+- ventaMayor es O(n) porque en cada vuelta visita una venta y compara su valor con la mayor encontrada el contador suma dos operaciones por venta.
+
+- totalPorCiudad es O(n) en esta prueba porque recorre todas las ventas una vez y la busqueda con includes() revisa una lista de hasta cuatro ciudades conte una visita y dos comprobaciones por cada venta generada.
+
+- primeraVenta es O(1) porque accede directamente a ventas[0] incluso con 100.000 ventas, el contador sigue dando una sola operación.
