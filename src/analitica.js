@@ -229,9 +229,46 @@ function clientesRecurrentes(ventas) {
 
     return recurrentes;
 }
-console.log(clientesRecurrentes(ventas))
+
+function totalCiudadCadena(ventas, ciudad) {
+    let ciudadNormalizada = normalizarCiudad(ciudad)
+    let ventasCiudadesNormalizadas = ventas.map((venta) => {
+        let ciudadNormalizada = normalizarCiudad(venta.ciudad)
+        return {
+            ...venta,
+            ciudad: ciudadNormalizada
+        }
+    })
+    let ventasCiudad = ventasCiudadesNormalizadas.filter((venta) => {
+        return venta.ciudad === ciudadNormalizada
+    })
+
+    ventasCiudad = ventasCiudad.map((venta) => {
+        return valorVenta(venta)
+    })
+
+    ventasCiudad = ventasCiudad.reduce((acumulador, valorVenta) => {
+        acumulador += valorVenta
+        return acumulador
+    }, 0)
+    return ventasCiudad
+}
 
 
+function totalCiudadUnaPasada(ventas, ciudad) {
+    const ciudadNormalizada = normalizarCiudad(ciudad)
+    let acumulador = 0
+    for (const venta of ventas) {
+        let ciudad = normalizarCiudad(venta.ciudad)
+        if (ciudadNormalizada === ciudad) {
+            acumulador += valorVenta(venta)
+        }
+
+    }
+
+
+    return acumulador
+}
 
 //Versiones de funciones (totalVendido, unidadesVendidas, ventadPorCiudad) pero con metodos
 function totalVendidoM(ventas) {
@@ -291,5 +328,7 @@ module.exports = {
     ventaMayorInstrumentada,
     totalPorCiudadEstandarizada,
     primeraVenta,
-    clientesRecurrentes
+    clientesRecurrentes,
+    totalCiudadCadena,
+    totalCiudadUnaPasada
 };

@@ -518,3 +518,57 @@ Por ejemplo si primero tengo muchos clientes que compraron dos veces, la lista d
 Punto 7. Conclusión para la gerente
 
 El reporte se demora porque para saber quienes volvieron a comprar, el sistema compara cada venta con muchas otras. Cada vez que encuentra dos compras de la misma persona tambien revisa si esa persona ya aparece en el resultado,con pocas ventas eso se hace rapido pero con todo el historial del año hay muchas mas compras por cruzar y por eso el reporte puede tardar bastante mas.
+
+
+## Mini-reto 7: Tiempo, memoria y cadenas de métodos
+
+Punto 4. Recorridos y memoria de las dos versiones
+
+En totalCiudadCadena el primer map recorre todas las ventas para normalizar la ciudad y filter vuelve a recorrerlas para quedarse con las que coinciden despues el segundo map calcula el valor de las ventas que pasaron el filtro y reduce suma esos valores. En total hay 4 recorridos y 3 arreglos nuevos.
+
+En totalCiudadUnaPasada el for...of recorre las ventas una sola vez, en la misma vuelta normaliza la ciudad, la compara y suma el valor si coincide y en total hay 1 recorrido y 0 arreglos nuevos.
+____________________________________________________________________________________
+|Funcion              |	Recorridos  |	Arreglos nuevos	|Tiempo	 | Espacio adicional
+|totalCiudadCadena	  | 4	        |3	                |O(n)	 |O(n)
+|totalCiudadUnaPasada |	1	        |0	                |O(n)	 |O(1)
+
+
+Si n es la cantidad total de ventas y m las que coinciden con la ciudad, la cadena revisa n + n + m + m elementos. Como m puede ser igual a n, en el peor caso revisa 4n. El ciclo revisa n. En ambos casos el trabajo crece de forma lineal (m lo use como representacion de las ciudades filtradas no es  un valor de mi codigo).
+
+En memoria la cadena es O(n) porque el primer map ya crea un arreglo del mismo tamaño que las ventas. La version de una pasada es O(1) porque usa un acumulador y la misma cantidad de variables aunque aumenten las ventas.
+
+### Punto 5. Por que las dos versiones son O(n) en tiempo
+
+En totalCiudadCadena los dos primeros metodos recorren todas las ventas y los dos ultimos recorren solo los elementos que quedaron despues del filtro en el peor caso todas las ventas son de la ciudad que busco y los cuatro recorridos revisan n elementos cada uno. Eso da n + n + n + n = 4n.
+
+En totalCiudadUnaPasada uso un solo for...of y reviso cada venta una vez. Por eso el recorrido tiene n visitas.
+
+En Big O el 4 es una constante y se elimina al simplificar O(4n) a O(n). Los recorridos de la cadena se hacen uno despues del otro y por eso sus visitas se suman. Las dos versiones tienen un crecimiento lineal porque si duplico las ventas, el maximo de visitas tambien se duplica y  por eso tambien se demoran el mismo tiempo.
+
+
+### Punto 6. Complejidad espacial de las funciones del motor
+
+Para clasificar las funciones mire que datos nuevos guarda cada una, use n para la cantidad de ventas. El arreglo original de ventas ya existe y queda fuera del conteo.
+
+| Funcion       | Memoria adicional       | Por  que                                      |
+|---------------|-------------------------|-----------------------------------------------|
+| valorVenta, totalVendido, unidadesVendidas y ticketPromedio    | O(1)                    | Usan una cantidad fija de variables           |
+| ventaMayor y primeraVenta                                    | O(1)                    | Guardan o devuelven una venta del arreglo      |
+| normalizarCiudad                                             | O(1) respecto a n       | Trabaja con el nombre de una sola ciudad      |
+| ventasPorCiudad y totalCiudadUnaPasada                        | O(1)                    | Guardan el total en un acumulador             |
+| totalVendidoInstrumentada y ventaMayorInstrumentada           | O(1)                    | El contador guarda un numero                  |
+| totalVendidoM                                                | O(n)                    | El map crea un arreglo con n valores          |
+| unidadesVendidasM                                            | O(1)                    | El reduce usa un acumulador                  |
+| ventasPorCiudadM y ventasDelDia                               | O(n) en el peor caso    | El filter puede guardar todas las ventas      |
+| totalCiudadCadena                                            | O(n)                    | El primer map crea un arreglo con n ventas    |
+| totalPorCiudad y totalPorCiudadEstandarizada                  | O(c) con c ciudades     | Guardan un total por cada ciudad distinta     |
+| unidadesPorProducto                                          | O(p) con p productos    | Guarda un total por cada producto distinto    |
+| topProductosPorValor                                         | O(p) con p productos    | Arma el ranking con todos los productos       |
+| clientesRecurrentes                                          | O(n) en el peor caso    | Guarda un codigo por cada cliente recurrente   |
+
+
+## Punto 7. Version que dejo en el motor
+
+Decidi dejar totalCiudadUnaPasada para el reporte con el for of puedo ver en una sola vuelta como se normaliza la ciudad, se compara con la que busco y se suma el valor si coincide. La version con metodos tambien se entiende porque cada metodo tiene una tarea clara, como filtrar las ventas o sumar sus valores, pero de manera me personal y  el funcionamiento aunque es el mismo me gusta con for of.
+
+Las dos versiones son O(n) en tiempo. La de una pasada recorre las ventas una vez y usa O(1) de memoria adicional porque solo guarda el total en un acumulador. La cadena hace cuatro recorridos, crea tres arreglos nuevos y usa O(n) de memoria adicional. Como el servidor tiene memoria limitada, me quedo con la version de una pasada para el reporte.
