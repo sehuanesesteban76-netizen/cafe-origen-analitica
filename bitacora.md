@@ -572,3 +572,7 @@ Para clasificar las funciones mire que datos nuevos guarda cada una, use n para 
 Decidi dejar totalCiudadUnaPasada para el reporte con el for of puedo ver en una sola vuelta como se normaliza la ciudad, se compara con la que busco y se suma el valor si coincide. La version con metodos tambien se entiende porque cada metodo tiene una tarea clara, como filtrar las ventas o sumar sus valores, pero de manera me personal y  el funcionamiento aunque es el mismo me gusta con for of.
 
 Las dos versiones son O(n) en tiempo. La de una pasada recorre las ventas una vez y usa O(1) de memoria adicional porque solo guarda el total en un acumulador. La cadena hace cuatro recorridos, crea tres arreglos nuevos y usa O(n) de memoria adicional. Como el servidor tiene memoria limitada, me quedo con la version de una pasada para el reporte.
+
+### Punto 6 - revisión del informe
+
+En la revisión con un comapñero me señalaron que se pueden confundir los tiempos medidos con los estimados que por ejemplo en clientesRecurrentes los 42 segundos salieron de correr el código con 100.000 ventas y la hora y 10 minutos para 1.000.000 de ventas salió de multiplicar esos 42 segundos por 100, suponiendo que el tiempo crece de forma cuadrática entonces voy a aclarar eso en la sección de proyeccion para que se entienda de dónde salio cada numero.
