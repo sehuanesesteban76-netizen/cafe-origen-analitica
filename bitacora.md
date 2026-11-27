@@ -387,3 +387,192 @@ En este mini reto hice un reporte en consola para ver el total vendido, las unid
 - **Prueba realizada** En la primera prueba obtuve 0 en el total, 0 en unidades y NaN en el ticket promedio y despues de agregar la condicion, el resultado esperado para esa misma fecha es 0.
 - **Causa** El filtro devolvia un arreglo vacio El total vendido y el contador de ventas validas quedaban en 0, asi que la division era 0 / 0 y por eso daba NaN.
 - **Correccion** En ticketPromedio agregue una condicion antes de dividi que fue  si el contador de ventas validas es 0, la funcion devuelve 0.
+
+
+## Mini-reto 5: ¿Cuanto cuesta cada reporte?
+
+## Punto 3. Predicción antes de medir
+- Si la cantidad de ventas se multiplica por 10 espero que el numero de operaciones tambien se multiplique por 10 en las tres funciones.
+
+- totalVendido cuenta una visita por cada venta. Si paso de 100 a 1.000 ventas, espero que el contador pase de 100 a 1.000 operaciones.
+
+- ventaMayor cuenta una visita y una comparación por cada venta. Si paso de 100 a 1.000 ventas, espero que el contador pase de 200 a 2.000 operaciones.
+
+- totalPorCiudad cuenta una visita, una comprobación para saber si la venta tiene ciudad y una búsqueda con includes() para saber si la ciudad ya esta registrada como todas las ventas generadas tienen ciudad y cuento cada llamada a includes() como una operación, espero pasar de 300 a 3.000 operaciones.
+
+## Punto 6. Comparación de la predicción con los resultados
+
+Mi prediccion fue que al multiplicar por 10 la cantidad de ventas, las operaciones de totalVendido, ventaMayor y totalPorCiudad también se multiplicarian por 10. La tabla confirmo esa predicción en los cuatro tamaños.
+
+|Función	    |Con 100 ventas| Con 1.000 ventas|	Complejidad |
+|---------------|--------------|-----------------|--------------|
+|totalVendido   |100	       |1.000	         |       O(n)   |
+|ventaMayor	    |200	       |2.000	         |       O(n)   |
+|totalPorCiudad	|300	       |3.000	         |       O(n)   |
+|primeraVenta	|1	           |1	             |       O(1)   |
+
+
+- totalVendido es O(n) porque el for visita cada venta una vez cada venta agrega una operación al contador.
+
+- ventaMayor es O(n) porque en cada vuelta visita una venta y compara su valor con la mayor encontrada el contador suma dos operaciones por venta.
+
+- totalPorCiudad es O(n) en esta prueba porque recorre todas las ventas una vez y la busqueda con includes() revisa una lista de hasta cuatro ciudades conte una visita y dos comprobaciones por cada venta generada.
+
+- primeraVenta es O(1) porque accede directamente a ventas[0] incluso con 100.000 ventas, el contador sigue dando una sola operación.
+
+
+## Mini-reto 6: El reporte que se volvio lento 
+
+Punto 2 - Traza de clientes recurrentes
+
+Para la prueba use 5 ventas con estos clientes en orden
+
+| posicion | 0   | 1   | 2   | 3   | 4   |
+|----------|-----|-----|-----|-----|-----|
+| cliente  | C01 | C02 | C01 | C03 | C02 |
+
+El primer ciclo coge una venta con i y el segundo compara esa venta con las que vienen despues  
+j empieza en i + 1 para comparar cada par una sola vez
+
+| i | j | clientes que compare | coinciden | recurrentes    |
+|---|---|----------------------|-----------|----------------|
+| 0 | 1 | C01 y C02            | no        | []             |
+| 0 | 2 | C01 y C01            | si        | ["C01"]        |
+| 0 | 3 | C01 y C03            | no        | ["C01"]        |
+| 0 | 4 | C01 y C02            | no        | ["C01"]        |
+| 1 | 2 | C02 y C01            | no        | ["C01"]        |
+| 1 | 3 | C02 y C03            | no        | ["C01"]        |
+| 1 | 4 | C02 y C02            | si        | ["C01", "C02"] |
+| 2 | 3 | C01 y C03            | no        | ["C01", "C02"] |
+| 2 | 4 | C01 y C02            | no        | ["C01", "C02"] |
+| 3 | 4 | C03 y C02            | no        | ["C01", "C02"] |
+
+Cuando i llega a 4 ya no quedan ventas despues de esa posicion  
+En total se hacen 4 + 3 + 2 + 1 + 0 = 10 comparaciones entre clientes  
+La funcion devuelve ["C01", "C02"] porque ambos compraron dos veces
+
+Comparaciones con n ventas
+
+Con n ventas cada una tiene n - 1 posibles ventas para comparar  
+Si multiplico n × (n - 1) estoy contando cada par dos veces por ejemplo la venta 0 con la 1 y la venta 1 con la 0  
+Por eso divido entre 2 y queda n × (n - 1) / 2
+
+Con 5 ventas da 5 × 4 / 2 = 10 que es lo mismo que salio en la tabla  aca conte las comparaciones entre los clientes de las ventas y el costo de includes() esto lo reviso en el punto 6
+
+Punto 3. Medicion del tiempo de clientes recurrentes
+
+Aca use la función generarVentas del mini-reto 5 para hacer las pruebas con diferentes cantidades de ventas, primero genere las ventas y despues use console.time para empezar a medir justo antes de llamar a clientesRecurrentes y cuando la funcion termino use console.timeEnd con el mismo nombre y asi pude ver cuanto se demoro solo la funcion.
+
+| Cantidad de ventas | Tiempo medido |
+|--------------------|--------------:|
+| 1.000              | 6,589 ms      |
+| 2.000              | 18,099 ms     |
+| 4.000              | 74,075 ms     |
+| 8.000              | 372,998 ms    |
+| 16.000             | 1.278 s      |
+
+El ultimo tiempo salio en segundos en la consola y los valores de cada cantidad pueden ir variando mediante cada vez que se corre el codigo.
+
+Punto 4. Que pasa con el tiempo cuando duplico las ventas
+
+Use los tiempos de la tabla del punto 3 y dividi cada tiempo por el de la prueba anterior para ver cuantas veces se multiplico.
+
+| Cantidad de ventas  | Division de los tiempos en ms | Cuantas veces se multiplico |
+|---------------------|-------------------------------|-----------------------------|
+| De 1.000 a 2.000    | 18,099 / 6,589                | 2,75 veces                  |
+| De 2.000 a 4.000    | 74,075 / 18,099               | 4,09 veces                  |
+| De 4.000 a 8.000    | 372,998 / 74,075              | 5,04 veces                  |
+| De 8.000 a 16.000   | 1.278 / 372,998               | 3,43 veces                  |
+
+El resultado que mas se acerco a 4 fue el de 2.000 a 4.000 ventas con 4,09 veces en cambio los otros aumentos quedaron entre 2,75 y 5,04 veces y los valores pueden variar mediante cada  vez que se corre el codigo.
+
+Esto se relaciona con O(n²) porque la función usa dos ciclos para comparar cada venta con las que vienen despues como se ve en la traza con n ventas se hacen n × (n - 1) / 2 comparaciones entre clientes. Al duplicar las ventas espero que esa cantidad de comparaciones sea casi cuatro veces mayor y eso explica por que el tiempo crece tanto aunque el aumento varie entre pruebas.
+
+
+Punto 5. Estimacion para 100.000 y 1.000.000 de ventas
+
+Primero tome el tiempo de la prueba de 16.000 ventas que me dio 1,278 segundos. Para estimar cuanto tardaria con mas ventas dividi la nueva cantidad entre 16.000 y eleve ese resultado al cuadrado. Despues multiplique ese valor por el tiempo de la prueba.
+
+| Cantidad de ventas | Calculo                       | Tiempo estimado            |
+|--------------------|-------------------------------|----------------------------|
+| 100.000            | 1,278 × (100.000 / 16.000)²   | 49,92 segundos             |
+| 1.000.000          | 1,278 × (1.000.000 / 16.000)² | 1 hora y 23 minutos aprox. |
+
+Como la estimacion de 100.000 ventas quedo por debajo de 2 minutos hice la prueba y me dio aproximadamente 42 segundos la funcion tardo casi 8 segundos menos de lo que habia estimado ya que cada vez que corro el codigo me da un valor nuevo.
+
+Con ese tiempo hice una nueva estimacion para 1.000.000 de ventas de 100.000 a 1.000.000 hay 10 veces mas ventas y con el crecimiento cuadratico el tiempo se multiplica por 10² que da 100.
+
+42 segundos × 100 = 4200 segundos
+4200 segundos ÷ 60 = 70 minutos
+
+Con la prueba de 100.000 ventas como base ahora estimo que con 1.000.000 la funcinó tardaria aproximadamente 1 hora y 10 minutos.
+
+
+Punto 6. Costo oculto de includes()
+
+Cuando dos ventas son del mismo cliente, la funcion usa includes() para mirar si ese cliente ya estaba en el arreglo de recurrentes si el cliente esta al final o todavia no se ha agregado, includes() tiene que revisar toda la lista.
+
+Por ejemplo si primero tengo muchos clientes que compraron dos veces, la lista de recurrentes ya tiene varios nombres guardados. Si despues tengo muchas ventas de un solo cliente, los dos ciclos encuentran muchos pares de ese mismo cliente y cada vez includes() vuelve a buscarlo hasta el final de la lista, en el peor caso puedo tener una cantidad de coincidencias que crece como n² y cada busqueda puede revisar una cantidad de clientes que crece como n por eso el trabajo total en ese caso puede llegar a O(n³).
+
+
+Punto 7. Conclusión para la gerente
+
+El reporte se demora porque para saber quienes volvieron a comprar, el sistema compara cada venta con muchas otras. Cada vez que encuentra dos compras de la misma persona tambien revisa si esa persona ya aparece en el resultado,con pocas ventas eso se hace rapido pero con todo el historial del año hay muchas mas compras por cruzar y por eso el reporte puede tardar bastante mas.
+
+
+## Mini-reto 7: Tiempo, memoria y cadenas de métodos
+
+Punto 4. Recorridos y memoria de las dos versiones
+
+En totalCiudadCadena el primer map recorre todas las ventas para normalizar la ciudad y filter vuelve a recorrerlas para quedarse con las que coinciden despues el segundo map calcula el valor de las ventas que pasaron el filtro y reduce suma esos valores. En total hay 4 recorridos y 3 arreglos nuevos.
+
+En totalCiudadUnaPasada el for...of recorre las ventas una sola vez, en la misma vuelta normaliza la ciudad, la compara y suma el valor si coincide y en total hay 1 recorrido y 0 arreglos nuevos.
+____________________________________________________________________________________
+|Funcion              |	Recorridos  |	Arreglos nuevos	|Tiempo	 | Espacio adicional
+|totalCiudadCadena	  | 4	        |3	                |O(n)	 |O(n)
+|totalCiudadUnaPasada |	1	        |0	                |O(n)	 |O(1)
+
+
+Si n es la cantidad total de ventas y m las que coinciden con la ciudad, la cadena revisa n + n + m + m elementos. Como m puede ser igual a n, en el peor caso revisa 4n. El ciclo revisa n. En ambos casos el trabajo crece de forma lineal (m lo use como representacion de las ciudades filtradas no es  un valor de mi codigo).
+
+En memoria la cadena es O(n) porque el primer map ya crea un arreglo del mismo tamaño que las ventas. La version de una pasada es O(1) porque usa un acumulador y la misma cantidad de variables aunque aumenten las ventas.
+
+### Punto 5. Por que las dos versiones son O(n) en tiempo
+
+En totalCiudadCadena los dos primeros metodos recorren todas las ventas y los dos ultimos recorren solo los elementos que quedaron despues del filtro en el peor caso todas las ventas son de la ciudad que busco y los cuatro recorridos revisan n elementos cada uno. Eso da n + n + n + n = 4n.
+
+En totalCiudadUnaPasada uso un solo for...of y reviso cada venta una vez. Por eso el recorrido tiene n visitas.
+
+En Big O el 4 es una constante y se elimina al simplificar O(4n) a O(n). Los recorridos de la cadena se hacen uno despues del otro y por eso sus visitas se suman. Las dos versiones tienen un crecimiento lineal porque si duplico las ventas, el maximo de visitas tambien se duplica y  por eso tambien se demoran el mismo tiempo.
+
+
+### Punto 6. Complejidad espacial de las funciones del motor
+
+Para clasificar las funciones mire que datos nuevos guarda cada una, use n para la cantidad de ventas. El arreglo original de ventas ya existe y queda fuera del conteo.
+
+| Funcion       | Memoria adicional       | Por  que                                      |
+|---------------|-------------------------|-----------------------------------------------|
+| valorVenta, totalVendido, unidadesVendidas y ticketPromedio    | O(1)                    | Usan una cantidad fija de variables           |
+| ventaMayor y primeraVenta                                    | O(1)                    | Guardan o devuelven una venta del arreglo      |
+| normalizarCiudad                                             | O(1) respecto a n       | Trabaja con el nombre de una sola ciudad      |
+| ventasPorCiudad y totalCiudadUnaPasada                        | O(1)                    | Guardan el total en un acumulador             |
+| totalVendidoInstrumentada y ventaMayorInstrumentada           | O(1)                    | El contador guarda un numero                  |
+| totalVendidoM                                                | O(n)                    | El map crea un arreglo con n valores          |
+| unidadesVendidasM                                            | O(1)                    | El reduce usa un acumulador                  |
+| ventasPorCiudadM y ventasDelDia                               | O(n) en el peor caso    | El filter puede guardar todas las ventas      |
+| totalCiudadCadena                                            | O(n)                    | El primer map crea un arreglo con n ventas    |
+| totalPorCiudad y totalPorCiudadEstandarizada                  | O(c) con c ciudades     | Guardan un total por cada ciudad distinta     |
+| unidadesPorProducto                                          | O(p) con p productos    | Guarda un total por cada producto distinto    |
+| topProductosPorValor                                         | O(p) con p productos    | Arma el ranking con todos los productos       |
+| clientesRecurrentes                                          | O(n) en el peor caso    | Guarda un codigo por cada cliente recurrente   |
+
+
+## Punto 7. Version que dejo en el motor
+
+Decidi dejar totalCiudadUnaPasada para el reporte con el for of puedo ver en una sola vuelta como se normaliza la ciudad, se compara con la que busco y se suma el valor si coincide. La version con metodos tambien se entiende porque cada metodo tiene una tarea clara, como filtrar las ventas o sumar sus valores, pero de manera me personal y  el funcionamiento aunque es el mismo me gusta con for of.
+
+Las dos versiones son O(n) en tiempo. La de una pasada recorre las ventas una vez y usa O(1) de memoria adicional porque solo guarda el total en un acumulador. La cadena hace cuatro recorridos, crea tres arreglos nuevos y usa O(n) de memoria adicional. Como el servidor tiene memoria limitada, me quedo con la version de una pasada para el reporte.
+
+### Punto 6 - revisión del informe
+
+En la revisión con un comapñero me señalaron que se pueden confundir los tiempos medidos con los estimados que por ejemplo en clientesRecurrentes los 42 segundos salieron de correr el código con 100.000 ventas y la hora y 10 minutos para 1.000.000 de ventas salió de multiplicar esos 42 segundos por 100, suponiendo que el tiempo crece de forma cuadrática entonces voy a aclarar eso en la sección de proyeccion para que se entienda de dónde salio cada numero.
